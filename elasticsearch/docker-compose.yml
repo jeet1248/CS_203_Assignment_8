@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "9567:9567"       # Exposes the FrontEnd to the host.
+    depends_on:
+      - backend
+    networks:
+      - app-net
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      - ES_HOST=elasticsearch
+    networks:
+      - app-net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - app-net
+    # Do not expose Elasticsearch to the host.
+
+networks:
+  app-net:
+
+volumes:
+  esdata:
